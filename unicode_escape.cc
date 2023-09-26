@@ -186,6 +186,7 @@ std::string unescape_string(
             }
             default: {
                 unescaped += str[index];
+                break;
             }
         }
     }
