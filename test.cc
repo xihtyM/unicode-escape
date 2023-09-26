@@ -3,7 +3,7 @@
 
 int main(void)
 {
-    std::cout << (escape_string("Hello, World!\\x41"));
+    std::cout << (escape_string("Hello, World!\\xah\\n"));
 
     return 0;
 }

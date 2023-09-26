@@ -85,14 +85,20 @@ std::string escape_string(
                 case 'x': {
                     index += 2; // skip xh
 
-                    if (index > size) {
+                    if (index > size || hex_to_int.find(str[index - 1]) == hex_to_int.end()) {
                         throw StringEscapeError(
                             "cannot decode string, truncated \\xXX escape."
                         );
-                    } else if (index == size) {
-                        return escaped + static_cast<char>(hex_to_int[str[index - 1]]);
                     }
 
+                    if (index == size) {
+                        return escaped + static_cast<char>(hex_to_int[str[index - 1]]);
+                    } else if (hex_to_int.find(str[index]) == hex_to_int.end()) {
+                        index--;
+                        escaped += hex_to_int[str[index]];
+                        break;
+                    }
+                    
                     escaped += (hex_to_int[str[index - 1]] << 4)
                              + (hex_to_int[str[index]]);
                     break;
