@@ -1,6 +1,6 @@
 #include "unicode_escape.hh"
 
-std::map<const char, int> hex_to_int {
+std::unordered_map<char, int> hex_to_int {
     {'0', 0x00}, {'1', 0x01},
     {'2', 0x02}, {'3', 0x03},
     {'4', 0x04}, {'5', 0x05},
@@ -104,19 +104,34 @@ std::string escape_string(
                     break;
                 }
                 case 'u': {
-                    index += 4; // skip uhhhh
+                    index += 4; // skip uXXX
 
                     if (index > size)
                     {
+                        // use goto so no repetition, 
+                        // but we have to check bounds
+                        // first so no segfaults
+                        goto decode_error;
+                    }
+
+                    if (hex_to_int.find(str[index - 3]) == hex_to_int.end()
+                     || hex_to_int.find(str[index - 2]) == hex_to_int.end()
+                     || hex_to_int.find(str[index - 1]) == hex_to_int.end()
+                     || hex_to_int.find(str[index]) == hex_to_int.end())
+                    {
+                      decode_error:
                         throw StringEscapeError("cannot decode string, truncated \\uXXXX escape.");
                     }
 
-                    escaped += (hex_to_int[str[index - 3]] << 12)
-                             + (hex_to_int[str[index - 2]] << 8)
-                             + (hex_to_int[str[index - 1]] << 4)
-                             + (hex_to_int[str[index]]);
+                    escaped += 0b11100000 + (hex_to_int[str[index - 3]]);
+
+                    escaped += 0b10000000 + (hex_to_int[str[index - 2]] << 2)
+                                          + (hex_to_int[str[index - 1]] >> 2);
+                    escaped += 0b10000000 + ((hex_to_int[str[index - 1]] & 3) << 4)
+                                          + (hex_to_int[str[index]]);
                     break;
                 }
+                // TODO: implement \U
                 default: {
                     escaped += '\\' + str[index];
                     break;

@@ -2,9 +2,9 @@
 
 #include <exception>
 #include <string>
-#include <map>
+#include <unordered_map>
 
-extern std::map<const char, int> hex_to_int;
+extern std::unordered_map<char, int> hex_to_int;
 
 class StringEscapeError : public std::exception
 {
