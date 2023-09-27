@@ -85,10 +85,18 @@ std::string escape_string(
                 case 'x': {
                     index += 2; // skip xh
 
-                    if (index > size || hex_to_int.find(str[index - 1]) == hex_to_int.end()) {
+                    if (index > size)
+                    {
+                        // use goto so no repetition, 
+                        // but we have to check bounds
+                        // first so no segfaults
+                        goto decode_xerror;
+                    }
+                    
+                    if (hex_to_int.find(str[index - 1]) == hex_to_int.end()) {
+                      decode_xerror:
                         throw StringEscapeError(
-                            "cannot decode string, truncated \\xXX escape."
-                        );
+                            "cannot decode string, truncated \\xXX escape.");
                     }
 
                     if (index == size) {
@@ -111,7 +119,7 @@ std::string escape_string(
                         // use goto so no repetition, 
                         // but we have to check bounds
                         // first so no segfaults
-                        goto decode_error;
+                        goto decode_uerror;
                     }
 
                     if (hex_to_int.find(str[index - 3]) == hex_to_int.end()
@@ -119,7 +127,7 @@ std::string escape_string(
                      || hex_to_int.find(str[index - 1]) == hex_to_int.end()
                      || hex_to_int.find(str[index]) == hex_to_int.end())
                     {
-                      decode_error:
+                      decode_uerror:
                         throw StringEscapeError("cannot decode string, truncated \\uXXXX escape.");
                     }
 
