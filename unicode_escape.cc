@@ -15,7 +15,7 @@ std::unordered_map<char, int> hex_to_int {
 };
 
 std::string escape_string(
-    const std::string &str)
+    const std::string_view &str)
 {
     std::string escaped = "";
     
@@ -155,7 +155,7 @@ std::string escape_string(
 }
 
 std::string unescape_string(
-    const std::string &str)
+    const std::string_view &str)
 {
     std::string unescaped = "";
 
